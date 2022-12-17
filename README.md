@@ -33,7 +33,7 @@ This is a complete rewrite of a rewrite! My (old? not really) plugin known as Ra
 Very easy and self-explanatory, but here is an explanation of each field regardless.
 
 `StartGroup` is the initial rank your users get put into when they register. Ideally, leave this at default.
-~~`doesCurrencyAffectRankTime` and `currencyAffect` are complementary. If set to true, all of the rank times are also affected by the user's economy level. the `currencyAffect` is a percentage value. For example, if it is set to 5, then 5% of the user's balance adds to the user's playtime (in seconds). If set to 100, then the user balance will add the entire balance (in seconds) to the user's playtime.~~ (currently unimplemented)
+`doesCurrencyAffectRankTime` and `currencyAffect` are complementary. If set to true, all of the rank times are also affected by the user's economy level. the `currencyAffect` is a percentage value. For example, if it is set to 5, then 5% of the user's balance adds to the user's playtime (in seconds). If set to 100, then the user balance will add the entire balance (in seconds) to the user's playtime.
 `Groups` has three main values. Each group has a `Name` such as `"member"`, and `NextRank` is the group that will succeed that group. The `Cost` is how much playtime the group will take to rank up to.
  
 ## Commands List 
