@@ -45,7 +45,10 @@ namespace Appointer
         public override async void Initialize()
         {
             Configuration<AppointerSettings>.Load("Appointer");
-            afkPlayers = new List<AFKPlayer>();
+            if (Configuration<AppointerSettings>.Settings.UseAFKSystem == true) {
+                afkPlayers = new List<AFKPlayer>();
+
+                }
             //reloading
             GeneralHooks.ReloadEvent += (x) =>
             {
@@ -78,48 +81,52 @@ namespace Appointer
                 if (plr.Account is null)
                     continue;
 
-                if (!afkPlayers.Any(x => x.PlayerName == plr.Name)){
-                    afkPlayers.Add(new AFKPlayer(plr.Name, plr.LastNetPosition));
-                }
-
-                AFKPlayer afkPlayer = afkPlayers.First(x => x.PlayerName == plr.Name);
-
-                if(afkPlayer.isAFK == true && afkPlayer.LastPosition != plr.LastNetPosition)
+                if(Configuration<AppointerSettings>.Settings.UseAFKSystem == true)
                 {
-                    afkPlayer.isAFK = false;
-                    afkPlayer.afkTicks = 0;
-                    TSPlayer.All.SendInfoMessage($"{plr.Name} is no longer AFK!");
-                }
+                    if (!afkPlayers.Any(x => x.PlayerName == plr.Name))
+                    {
+                        afkPlayers.Add(new AFKPlayer(plr.Name, plr.LastNetPosition));
+                    }
 
-                if (afkPlayer.LastPosition == plr.LastNetPosition)
-                {
-                    afkPlayer.afkTicks++;
-                    if (afkPlayer.isAFK == true && afkPlayer.afkTicks < 1000)
-                    {
-                        continue;
-                    }
-                    if(afkPlayer.isAFK == true && afkPlayer.afkTicks >= 1000)
-                    {
-                        plr.Kick("Kicked for being AFK for too long! (over 15 minutes)", false, false);
-                        continue;
-                    }
-                    if(afkPlayer.afkTicks >= 120)
-                    {
-                        afkPlayer.isAFK = true;
-                        TSPlayer.All.SendInfoMessage($"{plr.Name} is now AFK!");
-                        continue;
-                    }
-                }
-                else
-                {
-                    afkPlayer.afkTicks = 0;
-                    if(afkPlayer.isAFK == true)
+                    AFKPlayer afkPlayer = afkPlayers.First(x => x.PlayerName == plr.Name);
+
+                    if (afkPlayer.isAFK == true && afkPlayer.LastPosition != plr.LastNetPosition)
                     {
                         afkPlayer.isAFK = false;
+                        afkPlayer.afkTicks = 0;
                         TSPlayer.All.SendInfoMessage($"{plr.Name} is no longer AFK!");
                     }
+
+                    if (afkPlayer.LastPosition == plr.LastNetPosition)
+                    {
+                        afkPlayer.afkTicks++;
+                        if (afkPlayer.isAFK == true && afkPlayer.afkTicks < 1000)
+                        {
+                            continue;
+                        }
+                        if (afkPlayer.isAFK == true && afkPlayer.afkTicks >= 1000)
+                        {
+                            plr.Kick("Kicked for being AFK for too long! (over 15 minutes)", false, false);
+                            continue;
+                        }
+                        if (afkPlayer.afkTicks >= 120)
+                        {
+                            afkPlayer.isAFK = true;
+                            TSPlayer.All.SendInfoMessage($"{plr.Name} is now AFK!");
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        afkPlayer.afkTicks = 0;
+                        if (afkPlayer.isAFK == true)
+                        {
+                            afkPlayer.isAFK = false;
+                            TSPlayer.All.SendInfoMessage($"{plr.Name} is no longer AFK!");
+                        }
+                    }
+                    afkPlayer.LastPosition = plr.LastNetPosition;
                 }
-                afkPlayer.LastPosition = plr.LastNetPosition;
 
                 var entity = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == plr.Account.Name), x => x.AccountName = plr.Account.Name);
                 
