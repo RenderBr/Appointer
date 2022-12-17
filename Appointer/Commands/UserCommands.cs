@@ -21,7 +21,18 @@ namespace Appointer.Modules
                 var entity = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == Context.Player.Account.Name), x => x.AccountName = Context.Player.Account.Name);
 
                 Success($"You currently have: {Extensions.ElapsedString(new TimeSpan(0,0,entity.Playtime))} of playtime.");
-                return Info($"You need: [c/90EE90:{Extensions.NextRankCostFormatted(Context.Player.Account)}] left to rank up!");
+
+                string formatted = Extensions.NextRankCostFormatted(Context.Player.Account);
+
+                if (!(formatted == "You cannot obtain any further ranks!"))
+                {
+                    return Info($"You need: [c/90EE90:{formatted}] left to rank up!");
+
+                }
+                else
+                {
+                    return Info(""+ formatted);
+                }
 
             }
             else

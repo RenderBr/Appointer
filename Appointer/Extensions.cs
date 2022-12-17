@@ -51,13 +51,17 @@ namespace Appointer
         {
             if (UserGroupIndex(plr) == -404)
             {
-                return null;
+                return new Group("unranked", "", -1);
             }
             if (UserGroupIndex(plr) == -111)
             {
                 return Configuration<AppointerSettings>.Settings.Groups[0];
             }
 
+            if(Configuration<AppointerSettings>.Settings.Groups.Count <= UserGroupIndex(plr) + 1)
+            {
+                return new Group("final", "", -1);
+            }
 
             Group group = Configuration<AppointerSettings>.Settings.Groups[UserGroupIndex(plr)+1];
 
@@ -67,6 +71,12 @@ namespace Appointer
         public async static Task<int> NextRankCost(UserAccount plr)
         {
             var player = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == plr.Name), x => x.AccountName = plr.Name);
+            
+            //final rank code
+            if(NextGroup(plr).Name == "final")
+            {
+                return -666;
+            }
 
             if (UserGroupIndex(plr) == -404)
             {
@@ -90,7 +100,7 @@ namespace Appointer
 
             string formatted;
 
-            if(nextRankCost == -404)
+            if(nextRankCost == -404 || nextRankCost == -666)
             {
                 formatted = "You cannot obtain any further ranks!";
             }

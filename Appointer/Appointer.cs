@@ -130,7 +130,7 @@ namespace Appointer
 
                 var entity = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == plr.Account.Name), x => x.AccountName = plr.Account.Name);
                 
-                if (Extensions.NextRankCost(plr.Account).Result < 0)
+                if (Extensions.NextRankCost(plr.Account).Result < 0 && Extensions.NextGroup(plr.Account).Cost != -1)
                 {
                     string newGroup = Extensions.NextGroup(plr.Account).Name;
                     plr.Group = TShock.Groups.GetGroupByName(newGroup);

@@ -42,6 +42,6 @@ namespace Appointer
 		public bool UseAFKSystem { get; set; } = true;
 
 		[JsonPropertyName("Groups")]
-		public List<Group> Groups { get; set; } = new List<Group>() { new Group("default", "next", 1000) };
+		public List<Group> Groups { get; set; } = new List<Group>() { new Group("member", "vip", 1000) };
 	}
 }
