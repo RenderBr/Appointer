@@ -1,68 +1,43 @@
-# Average's RankSystem
+# Average's Appointer
 Support me & this plugin's (along with several others) development on Ko.Fi: [Here!](https://ko-fi.com/averageterraria)
 
-This is a complete rewrite of another plugin I originally updated, but then started implementing features to. Now, I have gone over all the code, and completely re-done almost all of it! The way it works is much more efficient, speedy, and easy for the user to use.
-
-**REQUIRES:** [SimpleEcon](https://github.com/Average-Org/SimpleEcon)
+This is a complete rewrite of a rewrite! My (old? not really) plugin known as RankSystem has received yet ANOTHER rewrite. What's different this time? Well, a FUCK-ton. This is a still a simple, automatic rank progression system based on user playtime but a variety of things are different. It now depends on CSF.Net.TShock along with Auxiliary. Why? For two reasons, CSF.Net makes command management much easier, and Auxiliary allows us to utilize a Mongo database, which is *much* faster and flat out better. Code has been re-written from scratch and works at least 100x better than RankSystem. 
 
 ### Features
 - Time based rank progression system (unlimited ranks!)
-- **REQUIRES:** [SimpleEcon](https://github.com/Average-Org/SimpleEcon) - can utilize economy to boost rank, with a modifier. See config explanation for how this modifier works
+- Built-in AFK system
 
 ## Config Explained
 (tshock/RankSystem.json)
 
 ```json
 {
+  "StartGroup": "default",
+  "DoesCurrencyAffectRankTime": false,
+  "CurrencyMultiplier": 1,
+  "UseAFKSystem": true,
   "Groups": [
     {
-      "name": "vip",
-      "info": {
-        "nextGroup": "trusted",
-        "rankCost": 15000,
-        "rankUnlocks": {}
-      }
+      "Name": "vip",
+      "NextRank": "member",
+      "Cost": 1000
     },
-      {
-        "name": "trusted",
-        "info": {
-          "nextGroup": "admin",
-          "rankCost": 65000,
-          "rankUnlocks": {}
-        }
-  }
-  ],
-  "StartGroup": "default",
-  "doesCurrencyAffectRankTime": false,
-  "currencyAffect": 1
+    {
+      "Name": "member",
+      "NextRank": "admin",
+      "Cost": 5000
+    }
+  ]
 }
-
 ```
 Very easy and self-explanatory, but here is an explanation of each field regardless.
 
-`StartGroup` essentially gets skipped, your gonna wanna keep this one at default.
-`doesCurrencyAffectRankTime` and `currencyAffect` are complementary. If set to true, all of the rank times are also affected by the user's economy level. the `currencyAffect` is a percentage value. For example, if it is set to 5, then 5% of the user's balance adds to the user's playtime (in seconds). If set to 100, then the user balance will add the entire balance (in seconds) to the user's playtime.
-`Groups` has three main values. Each group has a `name` such as `"member"`, and `nextGroup` is the next group that will come after the `rankCost` has been achieved. This is the user's playtime in seconds.
+`StartGroup` is the initial rank your users get put into when they register. Ideally, leave this at default.
+~~`doesCurrencyAffectRankTime` and `currencyAffect` are complementary. If set to true, all of the rank times are also affected by the user's economy level. the `currencyAffect` is a percentage value. For example, if it is set to 5, then 5% of the user's balance adds to the user's playtime (in seconds). If set to 100, then the user balance will add the entire balance (in seconds) to the user's playtime.~~ (currently unimplemented)
+`Groups` has three main values. Each group has a `Name` such as `"member"`, and `NextRank` is the group that will succeed that group. The `Cost` is how much playtime the group will take to rank up to.
  
 ## Commands List 
 
 | Command        |Description           |Usage  |Permission    |
 | ------------- |:-------------:| :-----:| :-----------:|
-| /rank    |Shows the user's playtime and next rank info | /rank (optional: `playerName`) (Alias: /check, /rankup | rs.user |
-| /rankdelete    |Delete's a user's playtime | /rankdelete `playerName` | se.admin |
-
-## Plugin Dev Implementations
-Simply add this plugin as a dependency for yours and you'll be able to use the following:
-
-### Retrieving a user's info
-```c#
-
-//Retrieve a user's next rank
-RankSystem.PlayerManager.getPlayer(player).NextRankInfo.nextGroup
-
-//Retrieve a user's next rank
-RankSystem.PlayerManager.getPlayer(player).NextRankInfo.rankCost;
-
-// and plenty of others within
-RankSystem.PlayerManager :D
-```
+| /rank    |Shows the user's playtime and next rank info | /rank (optional: `playerName`) (Alias: /check, /rankup | tbc.user |
