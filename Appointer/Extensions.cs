@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TShockAPI;
 using TShockAPI.DB;
+using Banker.Models;
 
 namespace Appointer
 {
@@ -71,9 +72,19 @@ namespace Appointer
         public async static Task<int> NextRankCost(UserAccount plr)
         {
             var player = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == plr.Name), x => x.AccountName = plr.Name);
-            
+            BankAccount bankAccount;
+            int playtime = player.Playtime;
+
+            if(Configuration<AppointerSettings>.Settings.DoesCurrencyAffectRankTime == true)
+            {
+                bankAccount = await IModel.GetAsync(GetRequest.Bson<BankAccount>(x => x.AccountName == plr.Name), x => x.AccountName = plr.Name);
+                playtime += (int)((Configuration<AppointerSettings>.Settings.CurrencyMultiplier / 100) * bankAccount.Currency);
+            }
+
+
+
             //final rank code
-            if(NextGroup(plr).Name == "final")
+            if (NextGroup(plr).Name == "final")
             {
                 return -666;
             }
@@ -84,12 +95,12 @@ namespace Appointer
             }
             if (UserGroupIndex(plr) == -111)
             {
-                return Configuration<AppointerSettings>.Settings.Groups[0].Cost-player.Playtime;
+                return Configuration<AppointerSettings>.Settings.Groups[0].Cost-playtime;
             }
             Group group = Configuration<AppointerSettings>.Settings.Groups[UserGroupIndex(plr)];
 
 
-            int timeLeft = NextGroup(plr).Cost - player.Playtime;
+            int timeLeft = NextGroup(plr).Cost - playtime;
             return timeLeft;
 
         }

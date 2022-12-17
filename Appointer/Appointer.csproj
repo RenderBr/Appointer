@@ -21,4 +21,9 @@
     <PackageReference Include="TSAPI" Version="5.1.2" />
     <PackageReference Include="TShock" Version="5.1.2" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Banker">
+      <HintPath>..\..\Banker2\Banker\bin\Debug\net6.0\Banker.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
