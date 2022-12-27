@@ -7,13 +7,16 @@ using Auxiliary.Configuration;
 using static Appointer.Extensions;
 using System.Threading.Tasks;
 using TShockAPI;
+using MongoDB.Driver.Linq;
+using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace Appointer.Modules
 {
     [RequirePermission("tbc.user")]
     internal class UserCommands : TSModuleBase<TSCommandContext>
     {
-        [Command("check", "rank", "rankup")]
+        [Command("check", "rank", "rankup", "playtime")]
         public async Task<IResult> CheckRank(string user = "")
         {
             if(user == "")
@@ -49,5 +52,14 @@ namespace Appointer.Modules
                 return Info($"They need: [c/90EE90:{Extensions.NextRankCostFormatted(User)}] left to rank up!");
             }
         }
+
+        [Command("afk")]
+        public IResult AfkCommand()
+        {
+            Appointer.afkPlayers.First(x => x.PlayerName == Context.Player.Name).isAFK = true;
+            return Announce($"{Context.Player.Name} is now AFK!", Color.LightYellow);
+        }
+        
+        
     }
 }

@@ -20,7 +20,7 @@ namespace Appointer
     {
         private Timer _updateTimer;
         private readonly TSCommandFramework _fx;
-        private static List<AFKPlayer> afkPlayers;
+        public static List<AFKPlayer> afkPlayers;
         public override string Author
             => "Average";
 
@@ -112,7 +112,7 @@ namespace Appointer
                         if (afkPlayer.afkTicks >= 120)
                         {
                             afkPlayer.isAFK = true;
-                            TSPlayer.All.SendInfoMessage($"{plr.Name} is now AFK!");
+                            TSPlayer.All.SendInfoMessage($"{plr.Name} is now AFK!", Color.LightYellow);
                             continue;
                         }
                     }
@@ -122,7 +122,7 @@ namespace Appointer
                         if (afkPlayer.isAFK == true)
                         {
                             afkPlayer.isAFK = false;
-                            TSPlayer.All.SendInfoMessage($"{plr.Name} is no longer AFK!");
+                            TSPlayer.All.SendInfoMessage($"{plr.Name} is no longer AFK!", Color.LightYellow);
                         }
                     }
                     afkPlayer.LastPosition = plr.LastNetPosition;
