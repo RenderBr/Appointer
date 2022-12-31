@@ -35,13 +35,10 @@ namespace Appointer
         public static Group UserCurrentGroup(UserAccount plr)
         {
             if(UserGroupIndex(plr) == -404)
-            {
                 return null;
-            }
+            
             if (UserGroupIndex(plr) == -111)
-            {
                 return new Group("default", Configuration<AppointerSettings>.Settings.Groups[0].Name, 0);
-            }
 
             Group group = Configuration<AppointerSettings>.Settings.Groups[UserGroupIndex(plr)];
 
@@ -59,7 +56,7 @@ namespace Appointer
                 return Configuration<AppointerSettings>.Settings.Groups[0];
             }
 
-            if(Configuration<AppointerSettings>.Settings.Groups.Count <= UserGroupIndex(plr) + 1)
+            if(UserGroupIndex(plr) + 1 >= Configuration<AppointerSettings>.Settings.Groups.Count || UserCurrentGroup(plr).NextRank == "final")
             {
                 return new Group("final", "", -1);
             }
@@ -80,9 +77,7 @@ namespace Appointer
                 bankAccount = await IModel.GetAsync(GetRequest.Bson<BankAccount>(x => x.AccountName == plr.Name), x => x.AccountName = plr.Name);
                 playtime += (int)((Configuration<AppointerSettings>.Settings.CurrencyMultiplier / 100) * bankAccount.Currency);
             }
-
-
-
+            
             //final rank code
             if (NextGroup(plr).Name == "final")
             {
@@ -105,9 +100,9 @@ namespace Appointer
 
         }
 
-        public static string NextRankCostFormatted(UserAccount plr)
+        public async static Task<string> NextRankCostFormatted(UserAccount plr)
         {
-            int nextRankCost = NextRankCost(plr).Result;
+            int nextRankCost = await NextRankCost(plr);
 
             string formatted;
 

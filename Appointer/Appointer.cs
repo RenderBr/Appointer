@@ -75,9 +75,7 @@ namespace Appointer
             foreach (TSPlayer plr in TShock.Players)
             {
                 if (plr is null || !(plr.Active && plr.IsLoggedIn))
-                {
                     continue;
-                }
                 if (plr.Account is null)
                     continue;
 
@@ -101,9 +99,8 @@ namespace Appointer
                     {
                         afkPlayer.afkTicks++;
                         if (afkPlayer.isAFK == true && afkPlayer.afkTicks < 1000)
-                        {
                             continue;
-                        }
+
                         if (afkPlayer.isAFK == true && afkPlayer.afkTicks >= 1000)
                         {
                             plr.Kick("Kicked for being AFK for too long! (over 15 minutes)", false, false);
@@ -129,8 +126,13 @@ namespace Appointer
                 }
 
                 var entity = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == plr.Account.Name), x => x.AccountName = plr.Account.Name);
-                
-                if (Extensions.NextRankCost(plr.Account).Result < 0 && Extensions.NextGroup(plr.Account).Cost != -1)
+
+                entity.Playtime++;
+
+                if (await Extensions.NextRankCost(plr.Account) == -666 || await Extensions.NextRankCost(plr.Account) == -404)
+                    continue;
+
+                if (await Extensions.NextRankCost(plr.Account) < 0 && Extensions.NextGroup(plr.Account).Cost != -1)
                 {
                     string newGroup = Extensions.NextGroup(plr.Account).Name;
                     plr.Group = TShock.Groups.GetGroupByName(newGroup);
@@ -138,18 +140,9 @@ namespace Appointer
                     TSPlayer.All.SendMessage($"{plr.Name} has ranked up to {Extensions.RemovePrefixOperators(plr.Group.Prefix)}! Congratulations :D", Color.LightGreen);
                 }
 
-                entity.Playtime++;
 
             }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-
-            }
-            base.Dispose(disposing);
-        }
     }
 }

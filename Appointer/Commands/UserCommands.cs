@@ -25,7 +25,7 @@ namespace Appointer.Modules
 
                 Success($"You currently have: {Extensions.ElapsedString(new TimeSpan(0,0,entity.Playtime))} of playtime.");
 
-                string formatted = Extensions.NextRankCostFormatted(Context.Player.Account);
+                string formatted = await Extensions.NextRankCostFormatted(Context.Player.Account);
 
                 if (!(formatted == "You cannot obtain any further ranks!"))
                 {
