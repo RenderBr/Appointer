@@ -10,12 +10,17 @@ using TShockAPI;
 using MongoDB.Driver.Linq;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using System.Security.Cryptography.X509Certificates;
+using MongoDB.Driver.Core.Operations;
 
 namespace Appointer.Modules
 {
     [RequirePermission("tbc.user")]
     internal class UserCommands : TSModuleBase<TSCommandContext>
     {
+
+        public AppointerSettings settings = Configuration<AppointerSettings>.Settings; 
+
         [Command("check", "rank", "rankup", "playtime")]
         public async Task<IResult> CheckRank(string user = "")
         {
@@ -58,6 +63,31 @@ namespace Appointer.Modules
         {
             Appointer.afkPlayers.First(x => x.PlayerName == Context.Player.Name).isAFK = true;
             return Announce($"{Context.Player.Name} is now AFK!", Color.LightYellow);
+        }
+
+        [Command("ranklist")]
+        public IResult RankListCommand()
+        {
+            string message = "";
+
+            if(Context.Player.Group.Name == settings.StartGroup)
+                message += message += "[c/00FF00:" + char.ToUpper(settings.StartGroup[0]) + settings.StartGroup.Substring(1) + "] ";
+            else
+                message += char.ToUpper(settings.StartGroup[0]) + settings.StartGroup.Substring(1) + " ";
+
+            foreach (Group group in settings.Groups)
+            {
+                if (group.Name == Context.Player.Group.Name)
+                {
+                    message += "[c/00FF00:> " + char.ToUpper(group.Name[0]) + group.Name.Substring(1) + "] ";
+                    continue;
+                }
+                message += "> " + char.ToUpper(group.Name[0]) + group.Name.Substring(1) + " ";
+            }
+            Respond("Current user rank list: ");
+            return Respond(message, Color.LightYellow);
+            
+                
         }
         
         
