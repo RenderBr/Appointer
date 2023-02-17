@@ -34,11 +34,16 @@ namespace Appointer
 
         }
 
-    public async Task<ITBCUser> RetrieveOrCreatePlaytime(TSPlayer player)
+        public async Task<ITBCUser> RetrieveOrCreatePlaytime(TSPlayer player)
             => await RetrieveOrCreatePlaytime(player.Account.Name);
 
         public async Task<ITBCUser> RetrievePlaytime(string player)
-            => await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == player), x => x.AccountName = player);
+        {
+            if (LinkedModeEnabled() == true)
+                return await IModel.GetAsync(GetRequest.Linked<LinkedTBCUser>(x => x.AccountName == player));
+
+            return await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == player));
+        }
 
         public async Task<ITBCUser> RetrievePlaytime(TSPlayer player)
             => await RetrievePlaytime(player.Account.Name);
