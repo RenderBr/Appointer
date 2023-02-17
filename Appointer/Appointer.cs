@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using TShockAPI;
-using TShockAPI.Hooks;
+﻿using Appointer.Models;
+using CSF.TShock;
+using Microsoft.Xna.Framework;
+using System;
+using System.Threading.Tasks;
+using System.Timers;
 using Terraria;
 using TerrariaApi.Server;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Auxiliary.Configuration;
-using System.Timers;
-using Auxiliary;
-using Appointer.Models;
-using CSF.TShock;
+using TShockAPI;
+using TShockAPI.Hooks;
 
 namespace Appointer
 {
     [ApiVersion(2, 1)]
     public class Appointer : TerrariaPlugin
     {
+        public static AppointerApi api;
         private Timer _updateTimer;
         private readonly TSCommandFramework _fx;
-        public static List<AFKPlayer> afkPlayers;
         public override string Author
             => "Average";
 
@@ -31,7 +27,7 @@ namespace Appointer
             => "Appointer";
 
         public override Version Version
-            => new Version(1, 0);
+            => new Version(1, 1);
 
         public Appointer(Main game)
             : base(game)
@@ -44,18 +40,15 @@ namespace Appointer
 
         public override async void Initialize()
         {
-            Configuration<AppointerSettings>.Load("Appointer");
-            if (Configuration<AppointerSettings>.Settings.UseAFKSystem == true) {
-                afkPlayers = new List<AFKPlayer>();
+            api = new AppointerApi();
 
-                }
             //reloading
             GeneralHooks.ReloadEvent += (x) =>
             {
-                Configuration<AppointerSettings>.Load("Appointer");
+                api.ReloadConfig();
                 x.Player.SendSuccessMessage("Successfully reloaded Appointer!");
             };
-            
+
 
             #region Timer initialization
             _updateTimer = new(1000)
@@ -79,14 +72,15 @@ namespace Appointer
                 if (plr.Account is null)
                     continue;
 
-                if(Configuration<AppointerSettings>.Settings.UseAFKSystem == true)
+                if (api.AFKSystemEnabled() == true)
                 {
-                    if (!afkPlayers.Any(x => x.PlayerName == plr.Name))
-                    {
-                        afkPlayers.Add(new AFKPlayer(plr.Name, plr.LastNetPosition));
-                    }
 
-                    AFKPlayer afkPlayer = afkPlayers.First(x => x.PlayerName == plr.Name);
+                    AFKPlayer afkPlayer = api.RetrieveAFKPlayer(plr);
+                    if (afkPlayer == null)
+                    {
+                        api.AddPlayerToAFK(plr);
+                        continue;
+                    }
 
                     if (afkPlayer.isAFK == true && afkPlayer.LastPosition != plr.LastNetPosition)
                     {
@@ -125,8 +119,7 @@ namespace Appointer
                     afkPlayer.LastPosition = plr.LastNetPosition;
                 }
 
-                var entity = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == plr.Account.Name), x => x.AccountName = plr.Account.Name);
-
+                var entity = await api.RetrieveOrCreatePlaytime(plr);
                 entity.Playtime++;
 
                 if (await Extensions.NextRankCost(plr.Account) == -666 || await Extensions.NextRankCost(plr.Account) == -404)
