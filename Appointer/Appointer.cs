@@ -17,6 +17,7 @@ namespace Appointer
         public static AppointerApi api;
         private Timer _updateTimer;
         private readonly TSCommandFramework _fx;
+        #region Plugin Metadata
         public override string Author
             => "Average";
 
@@ -27,8 +28,8 @@ namespace Appointer
             => "Appointer";
 
         public override Version Version
-            => new Version(1, 1);
-
+            => new Version(1, 1, 1);
+        #endregion
         public Appointer(Main game)
             : base(game)
         {
