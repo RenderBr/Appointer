@@ -93,14 +93,18 @@ namespace Appointer
                     if (afkPlayer.LastPosition == plr.LastNetPosition)
                     {
                         afkPlayer.afkTicks++;
-                        if (afkPlayer.isAFK == true && afkPlayer.afkTicks < 1000)
-                            continue;
-
-                        if (afkPlayer.isAFK == true && afkPlayer.afkTicks >= 1000)
+                        if (api.Settings.KickForAFK)
                         {
-                            plr.Kick("Kicked for being AFK for too long! (over 15 minutes)", false, false);
-                            continue;
+                            if (afkPlayer.isAFK == true && afkPlayer.afkTicks < api.Settings.KickThreshold)
+                                continue;
+
+                            if (afkPlayer.isAFK == true && afkPlayer.afkTicks >= api.Settings.KickThreshold)
+                            {
+                                plr.Kick("Kicked for being AFK for too long! (over 15 minutes)", false, false);
+                                continue;
+                            }
                         }
+                        
                         if (afkPlayer.afkTicks >= 120)
                         {
                             afkPlayer.isAFK = true;

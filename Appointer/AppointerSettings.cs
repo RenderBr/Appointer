@@ -38,6 +38,12 @@ namespace Appointer
         [JsonPropertyName("UseAFKSystem")]
         public bool UseAFKSystem { get; set; } = true;
 
+        [JsonPropertyName("KickForAFK")]
+        public bool KickForAFK { get; set; } = false;
+
+        [JsonPropertyName("KickThreshold")]
+        public int KickThreshold { get; set; } = 1000;
+
         [JsonPropertyName("Groups")]
         public List<Group> Groups { get; set; } = new List<Group>() { new Group("member", "vip", 1000) };
 
