@@ -104,8 +104,8 @@ namespace Appointer
                                 continue;
                             }
                         }
-                        
-                        if (afkPlayer.afkTicks >= 120)
+
+                        if (afkPlayer.afkTicks >= 120 && afkPlayer.isAFK == false)
                         {
                             afkPlayer.isAFK = true;
                             TSPlayer.All.SendInfoMessage($"{plr.Name} is now AFK!", Color.LightYellow);
