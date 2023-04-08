@@ -17,6 +17,10 @@ namespace Appointer.Modules
         [Command("check", "rank", "rankup", "playtime")]
         public async Task<IResult> CheckRank(string user = "")
         {
+            if(user.ToLower() == "list".ToLower()) {
+                return RankListCommand();
+            }
+
             if (user == "")
             {
                 var entity = await Appointer.api.RetrieveOrCreatePlaytime(Context.Player);
