@@ -17,7 +17,8 @@ namespace Appointer.Modules
         [Command("check", "rank", "rankup", "playtime")]
         public async Task<IResult> CheckRank(string user = "")
         {
-            if(user.ToLower() == "list".ToLower()) {
+            if (user.ToLower() == "list".ToLower())
+            {
                 return RankListCommand();
             }
 
@@ -44,7 +45,7 @@ namespace Appointer.Modules
                     return Error("Invalid player name!");
 
                 Success($"{user} currently has: {Extensions.ElapsedString(new TimeSpan(0, 0, entity.Playtime))} of playtime.");
-                return Info($"They need: [c/90EE90:{Extensions.NextRankCostFormatted(User)}] left to rank up!");
+                return Info($"They need: [c/90EE90:{await Extensions.NextRankCostFormatted(User)}] left to rank up!");
             }
         }
 

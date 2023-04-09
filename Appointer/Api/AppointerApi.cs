@@ -23,14 +23,14 @@ namespace Appointer
             Configuration<AppointerSettings>.Load("Appointer");
         }
 
-        public static List<AFKPlayer> afkPlayers = new List<AFKPlayer>();
+        public static List<AFKPlayer> afkPlayers = new();
 
         public async Task<ITBCUser> RetrieveOrCreatePlaytime(string player)
         {
             if (LinkedModeEnabled() == true)
                 return await IModel.GetAsync(GetRequest.Linked<LinkedTBCUser>(x => x.AccountName == player), x => x.AccountName = player);
 
-           return await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == player), x => x.AccountName = player);
+            return await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == player), x => x.AccountName = player);
 
         }
 
