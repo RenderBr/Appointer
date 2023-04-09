@@ -1,6 +1,7 @@
 ﻿using Appointer.Models;
 using Auxiliary;
 using Auxiliary.Configuration;
+using Banker.Api;
 using Banker.Models;
 using System;
 using System.Text;
@@ -65,13 +66,14 @@ namespace Appointer
 
         public async static Task<int> NextRankCost(UserAccount plr)
         {
-            var player = await IModel.GetAsync(GetRequest.Bson<TBCUser>(x => x.AccountName == plr.Name), x => x.AccountName = plr.Name);
-            BankAccount bankAccount;
+            var player = await Appointer.api.RetrieveOrCreatePlaytime(plr.Name);
+            BankerApi bankApi = new();
+            IBankAccount bankAccount;
             int playtime = player.Playtime;
 
             if (Configuration<AppointerSettings>.Settings.DoesCurrencyAffectRankTime == true)
             {
-                bankAccount = await IModel.GetAsync(GetRequest.Bson<BankAccount>(x => x.AccountName == plr.Name), x => x.AccountName = plr.Name);
+                bankAccount = await bankApi.RetrieveOrCreateBankAccount(plr.Name);
                 playtime += (int)(Configuration<AppointerSettings>.Settings.CurrencyMultiplier / 100 * bankAccount.Currency);
             }
 
