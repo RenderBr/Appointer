@@ -1,6 +1,4 @@
-﻿using Appointer.Models;
-using Auxiliary;
-using Auxiliary.Configuration;
+﻿using Auxiliary.Configuration;
 using Banker.Api;
 using Banker.Models;
 using System;
@@ -45,7 +43,7 @@ namespace Appointer
 
         public static Group NextGroup(UserAccount plr)
         {
-            if (UserGroupIndex(plr) == -404)
+            if (UserGroupIndex(plr) == -404 || plr == null)
             {
                 return new Group("unranked", "", -1);
             }
@@ -66,6 +64,11 @@ namespace Appointer
 
         public async static Task<int> NextRankCost(UserAccount plr)
         {
+            if (plr == null)
+            {
+                return -404;
+            }
+
             var player = await Appointer.api.RetrieveOrCreatePlaytime(plr.Name);
             BankerApi bankApi = new();
             IBankAccount bankAccount;
@@ -92,7 +95,6 @@ namespace Appointer
                 return Configuration<AppointerSettings>.Settings.Groups[0].Cost - playtime;
             }
             Group group = Configuration<AppointerSettings>.Settings.Groups[UserGroupIndex(plr)];
-
 
             int timeLeft = NextGroup(plr).Cost - playtime;
             return timeLeft;
