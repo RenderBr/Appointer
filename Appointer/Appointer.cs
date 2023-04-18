@@ -127,7 +127,7 @@ namespace Appointer
                 var entity = await api.RetrieveOrCreatePlaytime(plr);
                 entity.Playtime++;
 
-                if (await Extensions.NextRankCost(plr.Account) == -666 || await Extensions.NextRankCost(plr.Account) == -404)
+                if (await Extensions.NextRankCost(plr.Account) == Extensions.RankCode.Final || await Extensions.NextRankCost(plr.Account) == Extensions.RankCode.Unknown)
                     continue;
 
                 if (await Extensions.NextRankCost(plr.Account) < 0 && Extensions.NextGroup(plr.Account).Cost != -1)

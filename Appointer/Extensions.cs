@@ -11,29 +11,37 @@ namespace Appointer
 {
     public static class Extensions
     {
+        internal class RankCode
+        {
+            public const int Start = -111;
+            public const int Final = -666;
+            public const int Unknown = -404;
+
+        }
+
         public static int UserGroupIndex(UserAccount plr)
         {
             int index = Configuration<AppointerSettings>.Settings.Groups.FindIndex(x => x.Name.ToLower() == TShock.UserAccounts.GetUserAccount(plr).Group);
             if (plr.Group == Configuration<AppointerSettings>.Settings.StartGroup)
             {
                 // CODE FOR START GROUP
-                return -111;
+                return RankCode.Start;
             }
 
             if (index == -1)
             {
                 // CODE IF GROUP COULD NOT BE FOUND
-                return -404;
+                return RankCode.Unknown;
             }
 
             return index;
         }
         public static Group UserCurrentGroup(UserAccount plr)
         {
-            if (UserGroupIndex(plr) == -404)
+            if (UserGroupIndex(plr) == RankCode.Unknown)
                 return null;
 
-            if (UserGroupIndex(plr) == -111)
+            if (UserGroupIndex(plr) == RankCode.Start)
                 return new Group("default", Configuration<AppointerSettings>.Settings.Groups[0].Name, 0);
 
             Group group = Configuration<AppointerSettings>.Settings.Groups[UserGroupIndex(plr)];
@@ -43,11 +51,11 @@ namespace Appointer
 
         public static Group NextGroup(UserAccount plr)
         {
-            if (UserGroupIndex(plr) == -404 || plr == null)
+            if (UserGroupIndex(plr) == RankCode.Unknown || plr == null)
             {
                 return new Group("unranked", "", -1);
             }
-            if (UserGroupIndex(plr) == -111)
+            if (UserGroupIndex(plr) == RankCode.Start)
             {
                 return Configuration<AppointerSettings>.Settings.Groups[0];
             }
@@ -66,7 +74,7 @@ namespace Appointer
         {
             if (plr == null)
             {
-                return -404;
+                return RankCode.Unknown;
             }
 
             var player = await Appointer.api.RetrieveOrCreatePlaytime(plr.Name);
@@ -83,14 +91,14 @@ namespace Appointer
             //final rank code
             if (NextGroup(plr).Name == "final")
             {
-                return -666;
+                return RankCode.Final;
             }
 
-            if (UserGroupIndex(plr) == -404)
+            if (UserGroupIndex(plr) == RankCode.Unknown)
             {
-                return -404;
+                return RankCode.Unknown;
             }
-            if (UserGroupIndex(plr) == -111)
+            if (UserGroupIndex(plr) == RankCode.Start)
             {
                 return Configuration<AppointerSettings>.Settings.Groups[0].Cost - playtime;
             }
@@ -107,13 +115,25 @@ namespace Appointer
 
             string formatted;
 
-            if (nextRankCost == -404 || nextRankCost == -666)
+            switch (nextRankCost)
             {
-                formatted = "You cannot obtain any further ranks!";
-            }
-            else
-            {
-                formatted = ElapsedString(new TimeSpan(0, 0, NextRankCost(plr).Result));
+                case RankCode.Unknown:
+                    {
+                        formatted = "You are not in the rank chain!";
+                        break;
+                    }
+                case RankCode.Final:
+                    {
+                        formatted = "You cannot obtain any further ranks!";
+                        break;
+                    }
+                default:
+                    {
+                        formatted = ElapsedString(new TimeSpan(0, 0, NextRankCost(plr).Result));
+                        break;
+                    }
+
+
             }
 
             return formatted;
