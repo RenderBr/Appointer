@@ -1,9 +1,15 @@
-# Average's Appointer
+# 🫵 Appointer
 Support me & this plugin's (along with several others) development on Ko.Fi: [Here!](https://ko-fi.com/averageterraria)
 
 This is a complete rewrite of a rewrite! My (old? not really) plugin known as RankSystem has received yet ANOTHER rewrite. What's different this time? Well, a FUCK-ton. This is a still a simple, automatic rank progression system based on user playtime but a variety of things are different. It now depends on CSF.Net.TShock along with Auxiliary. Why? For two reasons, CSF.Net makes command management much easier, and Auxiliary allows us to utilize a Mongo database, which is *much* faster and flat out better. Code has been re-written from scratch and works at least 100x better than RankSystem. 
 
-### Features
+## ⚠️ Dependencies:
+
+Appointer releases are already bundled with all of the dependencies required **HOWEVER, an active & working MongoDB is required for Auxiliary to function properly,** which Appointer depends on.
+- CSF.Net.TShock
+- Auxiliary
+
+### ❕ Features
 - Time based rank progression system (unlimited ranks!)
 - Built-in AFK system
 
