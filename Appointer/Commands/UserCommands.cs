@@ -3,6 +3,7 @@ using CSF;
 using CSF.TShock;
 using Microsoft.Xna.Framework;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TShockAPI;
 
@@ -14,42 +15,45 @@ namespace Appointer.Modules
 
         public AppointerSettings settings = Configuration<AppointerSettings>.Settings;
 
-        [Command("check", "rank", "rankup", "playtime")]
-        public async Task<IResult> CheckRank(string user = "")
-        {
-            if (user.ToLower() == "list".ToLower())
-            {
-                return RankListCommand();
-            }
+		[Command("check", "rank", "rankup", "playtime")]
+		public async Task<IResult> CheckRank(string user = "")
+		{
+			if (string.IsNullOrWhiteSpace(user))
+				return await CheckOwnRank();
 
-            if (user == "")
-            {
-                var entity = await Appointer.api.RetrieveOrCreatePlaytime(Context.Player);
+			if (user.ToLower() == "list")
+				return RankListCommand();
 
-                Success($"You currently have: {Extensions.ElapsedString(new TimeSpan(0, 0, entity.Playtime))} of playtime.");
+			return await CheckUserRank(user);
+		}
 
-                string formatted = await Extensions.NextRankCostFormatted(Context.Player.Account);
+		private async Task<IResult> CheckOwnRank()
+		{
+			var player = await Appointer.api.RetrieveOrCreatePlaytime(Context.Player);
 
-                if (!(formatted == "You cannot obtain any further ranks!"))
-                    return Info($"You need: [c/90EE90:{formatted}] left to rank up!");
-                else
-                    return Info("" + formatted);
+			Success($"You currently have: {Extensions.ElapsedString(new TimeSpan(0, 0, player.Playtime))} of playtime.");
 
-            }
-            else
-            {
-                var entity = await Appointer.api.RetrieveOrCreatePlaytime(user);
-                var User = TShock.UserAccounts.GetUserAccountByName(user);
+			string formattedRankCost = await Extensions.NextRankCostFormatted(Context.Player.Account);
 
-                if (entity == null)
-                    return Error("Invalid player name!");
+			if (formattedRankCost != "You cannot obtain any further ranks!")
+				return Info($"You need: [c/90EE90:{formattedRankCost}] left to rank up!");
 
-                Success($"{user} currently has: {Extensions.ElapsedString(new TimeSpan(0, 0, entity.Playtime))} of playtime.");
-                return Info($"They need: [c/90EE90:{await Extensions.NextRankCostFormatted(User)}] left to rank up!");
-            }
-        }
+			return Info(formattedRankCost);
+		}
 
-        [Command("afk")]
+		private async Task<IResult> CheckUserRank(string username)
+		{
+			var player = await Appointer.api.RetrieveOrCreatePlaytime(username);
+			var userAccount = TShock.UserAccounts.GetUserAccountByName(username);
+
+			if (player is null)
+				return Error("Invalid player name!");
+
+			Success($"{username} currently has: {Extensions.ElapsedString(new TimeSpan(0, 0, player.Playtime))} of playtime.");
+			return Info($"They need: [c/90EE90:{await Extensions.NextRankCostFormatted(userAccount)}] left to rank up!");
+		}
+
+		[Command("afk")]
         public IResult AfkCommand()
         {
             Appointer.api.AddPlayerToAFK(Context.Player);
@@ -57,30 +61,29 @@ namespace Appointer.Modules
         }
 
         [Command("ranklist")]
-        public IResult RankListCommand()
-        {
-            string message = "";
+		public IResult RankListCommand()
+		{
+			string startGroup = settings.StartGroup;
+			string currentPlayerGroup = Context.Player.Group.Name;
 
-            if (Context.Player.Group.Name == settings.StartGroup)
-                message += message += "[c/00FF00:" + char.ToUpper(settings.StartGroup[0]) + settings.StartGroup.Substring(1) + "] ";
-            else
-                message += char.ToUpper(settings.StartGroup[0]) + settings.StartGroup.Substring(1) + " ";
+			var formattedGroups = settings.Groups.Select(group =>
+			{
+				string groupName = group.Name;
+				string formattedGroupName = char.ToUpper(groupName[0]) + groupName.Substring(1);
+				bool isCurrentGroup = (groupName == currentPlayerGroup);
+				bool isStartGroup = (groupName == startGroup);
+				string prefix = isCurrentGroup ? "[c/00FF00:> " : (isStartGroup && currentPlayerGroup == startGroup) ? "[c/00FF00:" + char.ToUpper(startGroup[0]) + startGroup.Substring(1) + "] " : "> ";
 
-            foreach (Group group in settings.Groups)
-            {
-                if (group.Name == Context.Player.Group.Name)
-                {
-                    message += "[c/00FF00:> " + char.ToUpper(group.Name[0]) + group.Name.Substring(1) + "] ";
-                    continue;
-                }
-                message += "> " + char.ToUpper(group.Name[0]) + group.Name.Substring(1) + " ";
-            }
-            Respond("Current user rank list: ");
-            return Respond(message, Color.LightYellow);
+				return prefix + formattedGroupName;
+			});
 
+			string message = "Current user rank list: " + string.Join(" ", formattedGroups);
 
-        }
+			return Respond(message, Color.LightYellow);
+		}
 
 
-    }
+
+
+	}
 }
