@@ -28,7 +28,7 @@ namespace Appointer
             => "Appointer";
 
         public override Version Version
-            => new Version(1, 1, 1);
+            => new Version(1, 2);
         #endregion
         public Appointer(Main game)
             : base(game)
@@ -49,7 +49,6 @@ namespace Appointer
                 api.ReloadConfig();
                 x.Player.SendSuccessMessage("Successfully reloaded Appointer!");
             };
-
 
             #region Timer initialization
             _updateTimer = new(1000)

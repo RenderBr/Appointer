@@ -9,11 +9,11 @@ using TShockAPI;
 
 namespace Appointer.Modules
 {
-    [RequirePermission("tbc.user")]
-    internal class UserCommands : TSModuleBase<TSCommandContext>
-    {
+	[RequirePermission("tbc.user")]
+	internal class UserCommands : TSModuleBase<TSCommandContext>
+	{
 
-        public AppointerSettings settings = Configuration<AppointerSettings>.Settings;
+		public AppointerSettings settings = Configuration<AppointerSettings>.Settings;
 
 		[Command("check", "rank", "rankup", "playtime")]
 		public async Task<IResult> CheckRank(string user = "")
@@ -54,13 +54,13 @@ namespace Appointer.Modules
 		}
 
 		[Command("afk")]
-        public IResult AfkCommand()
-        {
-            Appointer.api.AddPlayerToAFK(Context.Player);
-            return Announce($"{Context.Player.Account.Name} is now AFK!", Color.LightYellow);
-        }
+		public IResult AfkCommand()
+		{
+			Appointer.api.AddPlayerToAFK(Context.Player);
+			return Announce($"{Context.Player.Account.Name} is now AFK!", Color.LightYellow);
+		}
 
-        [Command("ranklist")]
+		[Command("ranklist")]
 		public IResult RankListCommand()
 		{
 			string startGroup = settings.StartGroup;
@@ -70,8 +70,8 @@ namespace Appointer.Modules
 			{
 				string groupName = group.Name;
 				string formattedGroupName = char.ToUpper(groupName[0]) + groupName.Substring(1);
-				bool isCurrentGroup = (groupName == currentPlayerGroup);
-				bool isStartGroup = (groupName == startGroup);
+				bool isCurrentGroup = groupName == currentPlayerGroup;
+				bool isStartGroup = groupName == startGroup;
 				string prefix = isCurrentGroup ? "[c/00FF00:> " : (isStartGroup && currentPlayerGroup == startGroup) ? "[c/00FF00:" + char.ToUpper(startGroup[0]) + startGroup.Substring(1) + "] " : "> ";
 
 				return prefix + formattedGroupName;

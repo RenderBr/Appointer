@@ -23,6 +23,6 @@ namespace Appointer.Models
     public interface ITBCUser
     {
         string AccountName { get; set; }
-        int Playtime { get; set; }        
+        int Playtime { get; set; }
     }
 }

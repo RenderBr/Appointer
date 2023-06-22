@@ -55,7 +55,7 @@ namespace Appointer
 			if (userGroupIndex + 1 >= Configuration<AppointerSettings>.Settings.Groups.Count ||
 				UserCurrentGroup(plr).NextRank.Equals("final", StringComparison.OrdinalIgnoreCase))
 				return new Group("final", "", -1);
-			
+
 			return Configuration<AppointerSettings>.Settings.Groups[userGroupIndex + 1];
 		}
 

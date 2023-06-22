@@ -4,50 +4,50 @@ using System.Text.Json.Serialization;
 
 namespace Appointer
 {
-    public class Group : JsonAttribute
-    {
-        [JsonPropertyName("Name")]
-        public string Name { get; set; }
+	public class Group : JsonAttribute
+	{
+		[JsonPropertyName("Name")]
+		public string Name { get; set; }
 
-        [JsonPropertyName("NextRank")]
-        public string NextRank { get; set; }
+		[JsonPropertyName("NextRank")]
+		public string NextRank { get; set; }
 
-        [JsonPropertyName("Cost")]
-        public int Cost { get; set; }
+		[JsonPropertyName("Cost")]
+		public int Cost { get; set; }
 
-        [JsonConstructor]
-        public Group(string name, string nextRank, int cost)
-        {
-            Name = name;
-            NextRank = nextRank;
-            Cost = cost;
-        }
-    }
+		[JsonConstructor]
+		public Group(string name, string nextRank, int cost)
+		{
+			Name = name;
+			NextRank = nextRank;
+			Cost = cost;
+		}
+	}
 
-    public class AppointerSettings : ISettings
-    {
-        [JsonPropertyName("StartGroup")]
-        public string StartGroup { get; set; } = "default";
+	public class AppointerSettings : ISettings
+	{
+		[JsonPropertyName("StartGroup")]
+		public string StartGroup { get; set; } = "default";
 
-        [JsonPropertyName("DoesCurrencyAffectRankTime")]
-        public bool DoesCurrencyAffectRankTime { get; set; } = false;
+		[JsonPropertyName("DoesCurrencyAffectRankTime")]
+		public bool DoesCurrencyAffectRankTime { get; set; } = false;
 
-        [JsonPropertyName("CurrencyMultiplier")]
-        public int CurrencyMultiplier { get; set; } = 1;
+		[JsonPropertyName("CurrencyMultiplier")]
+		public int CurrencyMultiplier { get; set; } = 1;
 
-        [JsonPropertyName("UseAFKSystem")]
-        public bool UseAFKSystem { get; set; } = true;
+		[JsonPropertyName("UseAFKSystem")]
+		public bool UseAFKSystem { get; set; } = true;
 
-        [JsonPropertyName("KickForAFK")]
-        public bool KickForAFK { get; set; } = false;
+		[JsonPropertyName("KickForAFK")]
+		public bool KickForAFK { get; set; } = false;
 
-        [JsonPropertyName("KickThreshold")]
-        public int KickThreshold { get; set; } = 1000;
+		[JsonPropertyName("KickThreshold")]
+		public int KickThreshold { get; set; } = 1000;
 
-        [JsonPropertyName("Groups")]
-        public List<Group> Groups { get; set; } = new List<Group>() { new Group("member", "vip", 1000) };
+		[JsonPropertyName("Groups")]
+		public List<Group> Groups { get; set; } = new List<Group>() { new Group("member", "vip", 1000) };
 
-        [JsonPropertyName("EnableLinkedMode")]
-        public bool EnableLinkedMode { get; set; } = false;
-    }
+		[JsonPropertyName("EnableLinkedMode")]
+		public bool EnableLinkedMode { get; set; } = false;
+	}
 }
