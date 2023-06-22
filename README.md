@@ -9,7 +9,7 @@ Appointer releases are already bundled with all of the dependencies required **H
 - CSF.Net.TShock
 - Auxiliary
 
-### ❕ Features
+## ❕ Features
 - Time based rank progression system (unlimited ranks!)
 - Built-in AFK system
 
