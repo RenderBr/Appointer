@@ -1,6 +1,8 @@
-﻿using Appointer.Models;
+﻿using Appointer.Database;
+using Appointer.Models;
 using CSF.TShock;
 using Microsoft.Xna.Framework;
+using PetaPoco;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
@@ -15,23 +17,21 @@ namespace Appointer
     public class Appointer : TerrariaPlugin
     {
         public static AppointerApi api;
-        private Timer _updateTimer;
         private readonly TSCommandFramework _fx;
+
+        public static AppointerDB _database = new();
+        public static IDatabase DB = _database.DB;
+
         #region Plugin Metadata
-        public override string Author
-            => "Average";
-
-        public override string Description
-            => "Automatic rank progression plugin intended to be used by TBC";
-
-        public override string Name
-            => "Appointer";
-
-        public override Version Version
-            => new Version(1, 2);
+        public override string Author => "Average";
+        public override string Description => "Automatic rank progression plugin, along with an AFK system";
+        public override string Name => "Appointer";
+        public override Version Version => new(1, 3);
         #endregion
-        public Appointer(Main game)
-            : base(game)
+
+        private Timer _updateTimer;
+
+        public Appointer(Main game) : base(game)
         {
             _fx = new(new()
             {
@@ -42,6 +42,7 @@ namespace Appointer
         public override async void Initialize()
         {
             api = new AppointerApi();
+            _database.InitializeDB(api.Settings.UseMySQL);
 
             //reloading
             GeneralHooks.ReloadEvent += (x) =>
@@ -55,26 +56,22 @@ namespace Appointer
             {
                 AutoReset = true
             };
-            _updateTimer.Elapsed += async (_, x)
-                => await Update(x);
+            _updateTimer.Elapsed += Update;
             _updateTimer.Start();
             #endregion
 
             await _fx.BuildModulesAsync(typeof(Appointer).Assembly);
         }
 
-        private static async Task Update(ElapsedEventArgs _)
+        private void Update(object _, ElapsedEventArgs __)
         {
             foreach (TSPlayer plr in TShock.Players)
             {
-                if (plr is null || !(plr.Active && plr.IsLoggedIn))
-                    continue;
-                if (plr.Account is null)
+                if (plr is null || !(plr.Active && plr.IsLoggedIn) || plr.Account is null)
                     continue;
 
-                if (api.AFKSystemEnabled() == true)
+                if (api.AFKSystemEnabled)
                 {
-
                     AFKPlayer afkPlayer = api.RetrieveAFKPlayer(plr);
                     if (afkPlayer == null)
                     {
@@ -82,7 +79,7 @@ namespace Appointer
                         continue;
                     }
 
-                    if (afkPlayer.isAFK == true && afkPlayer.LastPosition != plr.LastNetPosition)
+                    if (afkPlayer.isAFK && afkPlayer.LastPosition != plr.LastNetPosition)
                     {
                         afkPlayer.isAFK = false;
                         afkPlayer.afkTicks = 0;
@@ -94,17 +91,17 @@ namespace Appointer
                         afkPlayer.afkTicks++;
                         if (api.Settings.KickForAFK)
                         {
-                            if (afkPlayer.isAFK == true && afkPlayer.afkTicks < api.Settings.KickThreshold)
+                            if (afkPlayer.isAFK && afkPlayer.afkTicks < api.Settings.KickThreshold)
                                 continue;
 
-                            if (afkPlayer.isAFK == true && afkPlayer.afkTicks >= api.Settings.KickThreshold)
+                            if (afkPlayer.isAFK && afkPlayer.afkTicks >= api.Settings.KickThreshold)
                             {
                                 plr.Kick("Kicked for being AFK for too long! (over 15 minutes)", false, false);
                                 continue;
                             }
                         }
 
-                        if (afkPlayer.afkTicks >= 120 && afkPlayer.isAFK == false)
+                        if (afkPlayer.afkTicks >= 120 && !afkPlayer.isAFK)
                         {
                             afkPlayer.isAFK = true;
                             TSPlayer.All.SendInfoMessage($"{plr.Name} is now AFK!", Color.LightYellow);
@@ -114,7 +111,7 @@ namespace Appointer
                     else
                     {
                         afkPlayer.afkTicks = 0;
-                        if (afkPlayer.isAFK == true)
+                        if (afkPlayer.isAFK)
                         {
                             afkPlayer.isAFK = false;
                             TSPlayer.All.SendInfoMessage($"{plr.Name} is no longer AFK!", Color.LightYellow);
@@ -123,23 +120,22 @@ namespace Appointer
                     afkPlayer.LastPosition = plr.LastNetPosition;
                 }
 
-                var entity = await api.RetrieveOrCreatePlaytime(plr);
+                var entity = api.RetrievePlaytime(plr);
                 entity.Playtime++;
 
-                if (await Extensions.NextRankCost(plr.Account) == Extensions.RankCodeFinal || await Extensions.NextRankCost(plr.Account) == Extensions.RankCodeUnknown)
+                var nextRankCost = Extensions.NextRankCost(plr.Account);
+
+                if (nextRankCost == Extensions.RankCodeFinal || nextRankCost == Extensions.RankCodeUnknown)
                     continue;
 
-                if (await Extensions.NextRankCost(plr.Account) < 0 && Extensions.NextGroup(plr.Account).Cost != -1)
+                if (nextRankCost < 0 && Extensions.NextGroup(plr.Account).Cost != -1)
                 {
                     string newGroup = Extensions.NextGroup(plr.Account).Name;
                     plr.Group = TShock.Groups.GetGroupByName(newGroup);
                     TShock.UserAccounts.SetUserGroup(plr.Account, newGroup);
                     TSPlayer.All.SendMessage($"{plr.Name} has ranked up to {Extensions.TrimPrefixStyling(plr.Group.Prefix)}! Congratulations :D", Color.LightGreen);
                 }
-
-
             }
         }
-
     }
 }
